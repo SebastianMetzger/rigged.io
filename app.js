@@ -10,7 +10,7 @@ var stepperGenerator = require('./mainGenerator.js');
 // stepperAsync.fireEvent('onWakeUpCall',{data: 1});
 
 stepperGenerator.registerWorkflow('onWakeUpCall', '{data, id}leaveTheHouse{data} then {data}getIntoTheCar{data} and {data}getOntoTheBike{data} then {data}driveToWork{data} then {data}startCoding{data}');
-stepperGenerator.fireEvent('onWakeUpCall',{data: 1});
+stepperGenerator.fireEvent('onWakeUpCall',{data: 1, id: 2});
 
 // function *test(){
 // 	var text = "test";

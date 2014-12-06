@@ -2,13 +2,15 @@
 var request = require('request');
 
 var activities = {
-	leaveTheHouse : function(){
+	leaveTheHouse : function(inputs){
 		return function(cb){
+			console.log(inputs.data);
 			cb(null, 'leaveTheHouse  DONE');
 		};
 	},
-	getIntoTheCar : function(){
+	getIntoTheCar : function(inputs){
 		return function(cb){
+			console.log(inputs.data);
 			request('http://www.foodtrack.de/resolveCurrentWeek', function (error, response, body) {
 			  if (!error && response.statusCode == 200) {
 			    console.log(body) // Print the google web page.
@@ -17,18 +19,21 @@ var activities = {
 			});
 			}
 	},
-	getOntoTheBike : function(){
+	getOntoTheBike : function(inputs){
 		return function(cb){
+			console.log(inputs.data);
 			cb(null, 'getOntoTheBike DONE');
 		};
 	},
-	driveToWork : function(){
+	driveToWork : function(inputs){
 		return function(cb){
+			console.log(inputs.data);
 			cb(null, 'driveToWork DONE');
 		};
 	},
-	startCoding : function(){
+	startCoding : function(inputs){
 		return function(cb){
+			console.log(inputs.data);
 			cb(null, 'startCoding DONE');
 		};
 	},
@@ -78,6 +83,7 @@ function parseDataInterface(data){
 	return attributes;
 }
 
+// RIGGED.IO - Self resolving control flow
 function stepParallel(subSteps, payload){
 		return function(cb){
 			var callNbr = 0;
@@ -85,12 +91,20 @@ function stepParallel(subSteps, payload){
 				var subStep = subSteps[y];
 				// get everything in between curly braces
 				var data = subStep.match(/{([^}]*)}/g);
-				console.log("INPUT : " + parseDataInterface(data[0]));
-				console.log("OUTPUT : " + parseDataInterface(data[1]));
+				var inputs = parseDataInterface(data[0]);
+				var outputs = parseDataInterface(data[1]);
+				var inputsPayload = {};
+				inputs.forEach(function(name){
+					var value = payload[name];
+					if(value){
+						inputsPayload[name] = value;
+					} else {
+						console.warn('Missing value ' + name);
+					}
+				});
 				// get activity wrapped in curly braces
 				var activity = /}(.*){/.exec(subStep);
-				console.log(activity);
-				activities[activity[1]]()(function(err, ret){
+				activities[activity[1]](inputsPayload)(function(err, ret){
 					if(err) throw err;
 					console.log(ret);
 					callNbr++;
