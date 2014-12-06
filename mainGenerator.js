@@ -65,35 +65,32 @@ function run (gen) {
   }
 }
 
-// var produceTestFunction = function(res){
-// 	return function(cb){
-// 		cb(null, res);
-// 	};
-// }
-
-// var testFunctions = [];
-// testFunctions.push(produceTestFunction("test0"));
-// testFunctions.push(produceTestFunction("test1"));
-// testFunctions.push(produceTestFunction("test2"));
-// testFunctions.push(produceTestFunction("test3"));
-
-// async activity runner
-// run(function* () {
-//   try {
-//     for(var i = 0; i < testFunctions.length; i++){
-// 	    console.log(yield testFunctions[i]);
-//     }
-//   }
-//   catch (er) {
-//     console.error(er);
-//   }
-// });
+function parseDataInterface(data){
+	var attributes = [];
+	if(data.length > 2){
+		data = data.substring(1, data.length-1);
+		var tokens = data.split(',');
+		for(var i = 0; i < tokens.length; i++){
+			var token = tokens[i];
+			attributes.push(token);
+		}
+	}
+	return attributes;
+}
 
 function stepParallel(subSteps, payload){
 		return function(cb){
 			var callNbr = 0;
 			for(var y = 0;y < subSteps.length; y++){
-				activities[subSteps[y]]()(function(err, ret){
+				var subStep = subSteps[y];
+				// get everything in between curly braces
+				var data = subStep.match(/{([^}]*)}/g);
+				console.log("INPUT : " + parseDataInterface(data[0]));
+				console.log("OUTPUT : " + parseDataInterface(data[1]));
+				// get activity wrapped in curly braces
+				var activity = /}(.*){/.exec(subStep);
+				console.log(activity);
+				activities[activity[1]]()(function(err, ret){
 					if(err) throw err;
 					console.log(ret);
 					callNbr++;
@@ -113,12 +110,14 @@ function* stepLinear(steps, payload){
 }
 
 var registeredWorkflows = {};
-
+// EXPORTS
+// register an event with its workflow
 exports.registerWorkflow = function(event, workflow){
 	if(typeof event !== 'string') throw 'Event must be a String';
 	if(typeof event !== 'string') throw 'workflow must be a String';
 	registeredWorkflows[event] = workflow;
 };
+// receive an event from
 exports.fireEvent = function(event, payload){
 	if(typeof event !== 'string') throw 'Event must be a String';
 	if(!payload) payload = {};
