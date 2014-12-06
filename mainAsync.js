@@ -1,8 +1,6 @@
 "use strict";
-
 var Promise = require('promise');
 var request = require('request');
-
 
 var activities = {
 	leaveTheHouse : function(){
@@ -42,7 +40,7 @@ var activities = {
 	},
 };
 
-var executeSteps = function(steps, i){
+var executeSteps = function(steps, i, payload){
 	executeParallarActivites(steps[i]).then(function(){
 		console.log("Executed Async " + steps[i]);
 		i++;
@@ -52,7 +50,8 @@ var executeSteps = function(steps, i){
 	});
 };
 
-var executeParallarActivites = function(step){
+// execute one or more activities parallar
+var executeParallarActivites = function(step, payload){
 	var subSteps = step.split(' and ');
 	return new Promise(function (fulfill, reject){
 	  	var successCount = 0;
@@ -66,13 +65,24 @@ var executeParallarActivites = function(step){
 	  			}
 	  		});
 	  		} else {
+	  			console.log("Activity does not exist or is not a function: " + subStep);
 	  			reject("Activity must be a function: " + subStep);
 	  		}
 	  	});
 	  });
 };
 
-exports.process = function(dsl){
-	var steps = dsl.split(' then ');
-	executeSteps(steps, 0);
+var registeredWorkflows = {};
+
+exports.registerWorkflow = function(event, workflow){
+	if(typeof event !== 'string') throw 'Event must be a String';
+	if(typeof event !== 'string') throw 'workflow must be a String';
+	registeredWorkflows[event] = workflow;
+};
+exports.fireEvent = function(event, payload){
+	if(typeof event !== 'string') throw 'Event must be a String';
+	if(!payload) payload = {};
+	var workflow = registeredWorkflows[event];
+	var steps = workflow.split(' then ');
+	executeSteps(steps, 0, payload);
 };
