@@ -1,4 +1,5 @@
-"use strict";
+'user strict'
+
 var Promise = require('promise');
 var request = require('request');
 

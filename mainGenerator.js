@@ -1,4 +1,5 @@
-"use strict";
+'user strict'
+
 var request = require('request');
 
 var activities = {
@@ -39,6 +40,9 @@ var activities = {
 	},
 };
 
+/**
+ * Code partially taken from: http://strongloop.com/strongblog/how-to-generators-node-js-yield-use-cases/
+ */
 function thunkify (nodefn) { 
 	// First return function without callback
   return function () {
@@ -83,7 +87,7 @@ function parseDataInterface(data){
 	return attributes;
 }
 
-// RIGGED.IO - Self resolving control flow
+// Self resolving control flow
 function stepParallel(subSteps, payload){
 		return function(cb){
 			var callNbr = 0;

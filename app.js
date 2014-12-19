@@ -1,4 +1,4 @@
-"user strict";
+'user strict'
 
 var stepper = require('./main.js');
 var stepperAsync = require('./mainAsync.js');
